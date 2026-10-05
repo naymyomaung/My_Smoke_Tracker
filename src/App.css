@@ -1255,11 +1255,6 @@
   background: #eaf0e3;
 }
 
-.calendar-legend i.legend-target,
-.chart-legend i.legend-target {
-  background: #88a777;
-}
-
 .calendar-legend i.legend-over,
 .chart-legend i.legend-over {
   background: #f07857;
@@ -1325,14 +1320,6 @@
   font: 800 14px var(--mono);
 }
 
-.calendar-day.under {
-  background: #eaf0e3;
-}
-
-.calendar-day.target {
-  background: #88a777;
-}
-
 .calendar-day.over {
   background: #f07857;
 }
@@ -1386,11 +1373,6 @@
   color: #45623b;
   font: 700 8px var(--mono);
   letter-spacing: 0.5px;
-}
-
-.day-status-chip.target {
-  background: #88a777;
-  color: #172314;
 }
 
 .day-status-chip.over {
@@ -1638,10 +1620,6 @@
 
 .chart-bar.over {
   background: #f07857;
-}
-
-.chart-bar.target {
-  background: #88a777;
 }
 
 .chart-column:hover .chart-bar {
@@ -2182,6 +2160,9 @@
   --status-lime: #a8f04a;
   --status-green: #37c75a;
   --status-red: #ff4f2e;
+  --status-below: #38c95a;
+  --status-at: #ff9f1a;
+  --status-over: #ff3b30;
   --neo-yellow: #ffd52f;
   --neo-blue: #4bc9f5;
 }
@@ -2244,44 +2225,46 @@
 }
 
 .progress-card {
-  --progress-surface: #d9ffc0;
-  --progress-status-color: var(--status-lime);
+  --progress-surface: var(--status-below);
+  --progress-status-color: var(--status-below);
 }
 
 .progress-card.status-at {
-  --progress-surface: #c1ffd0;
-  --progress-status-color: var(--status-green);
+  --progress-surface: var(--status-at);
+  --progress-status-color: var(--status-at);
 }
 
 .progress-card.status-over {
-  --progress-surface: #ffd0c4;
-  --progress-status-color: var(--status-red);
+  --progress-surface: var(--status-over);
+  --progress-status-color: var(--status-over);
 }
 
 .progress-ring {
-  --status-color: var(--status-lime);
+  --status-color: var(--status-below);
 }
 
 .progress-ring.status-at {
-  --status-color: var(--status-green);
+  --status-color: var(--status-at);
 }
 
 .progress-ring.status-over {
-  --status-color: var(--status-red);
+  --status-color: var(--status-over);
 }
 
-.goal-track i,
-.goal-status,
-.goal-status.status-at {
-  color: #267b36 !important;
+.goal-status {
+  color: #145b28 !important;
 }
 
 .goal-track i {
   background: var(--progress-status-color);
 }
 
+.goal-status.status-at {
+  color: #673900 !important;
+}
+
 .goal-status.status-over {
-  color: #b52b17 !important;
+  color: #6f100a !important;
 }
 
 .spend-card,
@@ -2302,24 +2285,43 @@
   background-color: #ff9982;
 }
 
-.calendar-legend i.legend-under,
-.calendar-day.under,
-.chart-bar {
-  background-color: var(--status-lime);
+.summary-tile.summary-below,
+.calendar-legend i.legend-below,
+.calendar-day.below,
+.day-status-chip.below,
+.chart-bar.below,
+.monthly-week-column.below,
+.monthly-week-column.below .monthly-week-meter > i {
+  background-color: var(--status-below);
 }
 
-.calendar-legend i.legend-target,
-.calendar-day.target,
-.day-status-chip.target,
-.chart-bar.target {
-  background-color: var(--status-green);
+.summary-tile.summary-at,
+.calendar-legend i.legend-at,
+.calendar-day.at,
+.day-status-chip.at,
+.chart-bar.at,
+.monthly-week-column.at,
+.monthly-week-column.at .monthly-week-meter > i {
+  background-color: var(--status-at);
 }
 
+.summary-tile.summary-over,
 .calendar-legend i.legend-over,
 .calendar-day.over,
 .day-status-chip.over,
-.chart-bar.over {
-  background-color: var(--status-red);
+.chart-bar.over,
+.monthly-week-column.over,
+.monthly-week-column.over .monthly-week-meter > i {
+  background-color: var(--status-over);
+}
+
+.calendar-day.below,
+.calendar-day.at,
+.calendar-day.over,
+.day-status-chip.below,
+.day-status-chip.at,
+.day-status-chip.over {
+  color: #20231d;
 }
 
 .calendar-legend i.legend-no-logs,
@@ -2453,12 +2455,16 @@
   box-shadow: 5px 5px 0 #292d26;
 }
 
-.monthly-week-column.target {
-  background: #c1ffd0;
+.monthly-week-column.below {
+  background: var(--status-below);
 }
 
 .monthly-week-column.over {
-  background: #ffd0c4;
+  background: var(--status-over);
+}
+
+.monthly-week-column.at {
+  background: var(--status-at);
 }
 
 .monthly-week-column.no-logs {
@@ -2516,16 +2522,16 @@
 .monthly-week-meter > i {
   display: block;
   height: 100%;
-  background: var(--status-lime);
+  background: var(--status-below);
   transition: width 300ms ease;
 }
 
-.monthly-week-column.target .monthly-week-meter > i {
-  background: var(--status-green);
+.monthly-week-column.at .monthly-week-meter > i {
+  background: var(--status-at);
 }
 
 .monthly-week-column.over .monthly-week-meter > i {
-  background: var(--status-red);
+  background: var(--status-over);
 }
 
 .monthly-week-footer {
@@ -3275,4 +3281,40 @@
     flex-wrap: wrap;
     font-size: 8px;
   }
+}
+
+.progress-card:is(.status-below, .status-at, .status-over) .card-kicker,
+.progress-card:is(.status-below, .status-at, .status-over) .ring-inner span,
+.progress-card:is(.status-below, .status-at, .status-over) .progress-copy h2,
+.progress-card:is(.status-below, .status-at, .status-over) .progress-copy > p,
+.progress-card:is(.status-below, .status-at, .status-over) .progress-copy > p strong,
+.progress-card:is(.status-below, .status-at, .status-over) .goal-label,
+.progress-card:is(.status-below, .status-at, .status-over) .goal-label strong,
+.progress-card:is(.status-below, .status-at, .status-over) .goal-label i,
+.progress-card:is(.status-below, .status-at, .status-over) .goal-status,
+.progress-card:is(.status-below, .status-at, .status-over) .kind-note,
+.progress-card:is(.status-below, .status-at, .status-over) .clock-label,
+.progress-card:is(.status-below, .status-at, .status-over) .smoke-free-clock strong,
+.progress-card:is(.status-below, .status-at, .status-over) .clock-caption,
+.progress-card:is(.status-below, .status-at, .status-over) .card-bottom-note {
+  color: #11130f !important;
+}
+
+.summary-tile:is(.summary-below, .summary-at, .summary-over) > span,
+.summary-tile:is(.summary-below, .summary-at, .summary-over) > strong,
+.summary-tile:is(.summary-below, .summary-at, .summary-over) > i,
+.monthly-week-column:is(.below, .at, .over) .monthly-week-heading > span,
+.monthly-week-column:is(.below, .at, .over) .monthly-week-result > strong,
+.monthly-week-column:is(.below, .at, .over) .monthly-week-result > span,
+.monthly-week-column:is(.below, .at, .over) .monthly-week-footer {
+  color: #11130f !important;
+}
+
+.day-status-chip.below,
+.day-status-chip.at,
+.day-status-chip.over,
+.calendar-day.below,
+.calendar-day.at,
+.calendar-day.over {
+  color: #11130f !important;
 }

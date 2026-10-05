@@ -201,10 +201,10 @@ function App() {
   const dailyGoal = profile?.dailyGoal ?? 10
   const progress = Math.min((todayLogs.length / dailyGoal) * 100, 100)
   const goalStatus = todayLogs.length < dailyGoal
-    ? { className: 'under', message: `${dailyGoal - todayLogs.length} to your daily goal` }
+    ? { className: 'below', message: `Below target by ${dailyGoal - todayLogs.length}` }
     : todayLogs.length === dailyGoal
-      ? { className: 'at', message: 'You reached your daily goal' }
-      : { className: 'over', message: `${todayLogs.length - dailyGoal} over your daily goal` }
+      ? { className: 'at', message: 'At target' }
+      : { className: 'over', message: `Over target by ${todayLogs.length - dailyGoal}` }
   const costPerCigarette = profile?.costPerCigarette ?? 0
   const daysUntilQuitDate = profile ? daysBetweenDates(todayKey(), profile.quitDate) : 0
   const todaySpend = todayLogs.length * costPerCigarette
@@ -505,7 +505,7 @@ function App() {
         <article className={`card progress-card status-${goalStatus.className}`}>
           <div className="card-kicker">TODAY’S CHECK-IN <span className="live-dot" /> LIVE</div>
           <div className="progress-content">
-            <div className={`progress-ring status-${goalStatus.className}`} role="img" aria-label={`${todayLogs.length} cigarettes today. ${goalStatus.message}.`} style={{ '--progress': `${progress}%` } as React.CSSProperties}><div className="ring-inner"><strong>{todayLogs.length}</strong><span>{goalStatus.className === 'over' ? 'OVER' : goalStatus.className === 'at' ? 'GOAL HIT' : 'TO GO'}</span></div></div>
+            <div className={`progress-ring status-${goalStatus.className}`} role="img" aria-label={`${todayLogs.length} cigarettes today. ${goalStatus.message}.`} style={{ '--progress': `${progress}%` } as React.CSSProperties}><div className="ring-inner"><strong>{todayLogs.length}</strong><span>{goalStatus.className === 'over' ? 'OVER TARGET' : goalStatus.className === 'at' ? 'AT TARGET' : 'BELOW TARGET'}</span></div></div>
             <div className="progress-copy"><h2>One moment<br />at a time.</h2><p>You set a gentle goal of <strong>{dailyGoal} a day.</strong></p><div className="goal-label"><span>DAILY GOAL</span><strong>{todayLogs.length} <i>/ {dailyGoal}</i></strong></div><div className="goal-track"><i style={{ width: `${progress}%` }} /></div><p className={`goal-status status-${goalStatus.className}`} aria-live="polite">{goalStatus.message}</p><div className="smoke-free-clock" aria-live="polite"><span className="clock-icon">◷</span><div><span className="clock-label">TIME SINCE LAST CIGARETTE</span><strong>{smokeFreeTime ?? 'Not started'}</strong><span className="clock-caption">{smokeFreeTime ? 'One moment at a time.' : 'Your timer starts after your first log.'}</span></div></div><p className="kind-note">This isn’t a score. It’s just information.</p></div>
           </div>
           <button className="button button-dark log-button" onClick={() => setConfirmLog(true)}><span className="plus">＋</span> Log a cigarette <span className="button-arrow">→</span></button>
@@ -540,9 +540,9 @@ function App() {
       {page === 'calendar' && <section className="calendar-page">
         <div className="calendar-summary calendar-summary-four">
           <article className="summary-tile"><span>SMOKES THIS MONTH</span><strong>{monthTotal}</strong><i>logged cigarettes</i></article>
-          <article className="summary-tile summary-green"><span>ON TARGET</span><strong>{targetHitDays}</strong><i>logged days at {dailyGoal}</i></article>
-          <article className="summary-tile summary-yellow"><span>UNDER GOAL</span><strong>{underTargetDays}</strong><i>logged days below {dailyGoal}</i></article>
-          <article className="summary-tile summary-red"><span>OVER TARGET</span><strong>{overTargetDays}</strong><i>logged days above {dailyGoal}</i></article>
+          <article className="summary-tile summary-at"><span>AT TARGET</span><strong>{targetHitDays}</strong><i>logged days at {dailyGoal}</i></article>
+          <article className="summary-tile summary-below"><span>BELOW TARGET</span><strong>{underTargetDays}</strong><i>logged days below {dailyGoal}</i></article>
+          <article className="summary-tile summary-over"><span>OVER TARGET</span><strong>{overTargetDays}</strong><i>logged days above {dailyGoal}</i></article>
         </div>
         <article className="card calendar-card">
           <div className="calendar-toolbar">
@@ -552,7 +552,7 @@ function App() {
               <button aria-label="Next month" disabled={monthKey >= todayKey().slice(0, 7)} onClick={() => setCalendarMonth((month) => new Date(month.getFullYear(), month.getMonth() + 1, 1))}>→</button>
             </div>
           </div>
-          <div className="calendar-legend"><span><i className="legend-under" /> Under goal</span><span><i className="legend-target" /> Hit goal</span><span><i className="legend-over" /> Over goal</span><span><i className="legend-no-logs" /> No logs</span></div>
+          <div className="calendar-legend"><span><i className="legend-below" /> Below target</span><span><i className="legend-at" /> At target</span><span><i className="legend-over" /> Over target</span><span><i className="legend-no-logs" /> No logs</span></div>
           <div className="calendar-grid" role="grid" aria-label="Monthly cigarette log calendar">
             {['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].map((weekday) => <span className="calendar-weekday" role="columnheader" key={weekday}>{weekday}</span>)}
             {calendarCells.map((day, index) => {
@@ -560,15 +560,15 @@ function App() {
               const key = `${monthKey}-${String(day).padStart(2, '0')}`
               const count = monthCounts.get(key) ?? 0
               const future = key > todayKey()
-              const status = future ? 'future' : count > dailyGoal ? 'over' : count === dailyGoal && count > 0 ? 'target' : count > 0 ? 'under' : 'empty'
-              const statusText = status === 'over' ? 'over target' : status === 'target' ? 'goal reached' : status === 'under' ? 'under target' : 'no logs'
+              const status = future ? 'future' : count > dailyGoal ? 'over' : count === dailyGoal && count > 0 ? 'at' : count > 0 ? 'below' : 'empty'
+              const statusText = status === 'over' ? 'Over target' : status === 'at' ? 'At target' : status === 'below' ? 'Below target' : 'No logs'
               return <button className={`calendar-day ${status} ${selectedDate === key ? 'selected' : ''} ${key === todayKey() ? 'is-today' : ''}`} role="gridcell" aria-pressed={selectedDate === key} aria-label={`${calendarMonth.toLocaleDateString([], { month: 'long' })} ${day}: ${future ? 'future date' : `${count} cigarettes, ${statusText}`}`} disabled={future} key={key} onClick={() => setSelectedDate(key)}><span>{day}</span>{!future && <strong>{count || '·'}</strong>}</button>
             })}
           </div>
           <p className="calendar-footnote">Daily goal: <strong>{dailyGoal} cigarettes</strong>. Choose a day to see its check-ins.</p>
         </article>
         <article className="card selected-day-card">
-          <div className="selected-day-heading"><div><p className="eyebrow">DAY DETAILS</p><h2>{selectedDateObject.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })}</h2></div><span className={`day-status-chip ${isSelectedFuture ? 'upcoming' : selectedCount > dailyGoal ? 'over' : selectedCount === dailyGoal ? 'target' : selectedCount > 0 ? 'under' : 'no-logs'}`}>{isSelectedFuture ? 'UPCOMING' : selectedCount > dailyGoal ? 'OVER GOAL' : selectedCount === dailyGoal ? 'GOAL HIT' : selectedCount > 0 ? 'UNDER GOAL' : 'NO LOGS'}</span></div>
+          <div className="selected-day-heading"><div><p className="eyebrow">DAY DETAILS</p><h2>{selectedDateObject.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })}</h2></div><span className={`day-status-chip ${isSelectedFuture ? 'upcoming' : selectedCount > dailyGoal ? 'over' : selectedCount === dailyGoal && selectedCount > 0 ? 'at' : selectedCount > 0 ? 'below' : 'no-logs'}`}>{isSelectedFuture ? 'UPCOMING' : selectedCount > dailyGoal ? 'Over target' : selectedCount === dailyGoal && selectedCount > 0 ? 'At target' : selectedCount > 0 ? 'Below target' : 'NO LOGS'}</span></div>
           <div className="selected-day-stats"><div><span>CIGARETTES</span><strong>{selectedCount}</strong></div><div><span>EST. SPEND</span><strong>{formatMMK(selectedCount * costPerCigarette)}</strong></div></div>
           {selectedDayLogs.length ? <div className="day-log-list">{selectedDayLogs.map((log) => <div className="day-log-row" key={log.id}><span>✳</span><strong>Smoke logged</strong><time>{log.time}</time></div>)}</div> : <p className="calendar-empty">{isSelectedFuture ? 'This day hasn’t arrived yet.' : 'No entries saved for this day.'}</p>}
         </article>
@@ -578,7 +578,7 @@ function App() {
           <article className="summary-tile"><span>CIGARETTES LOGGED</span><strong>{analysisMonthLogs.length}</strong><i>in {analysisMonth.toLocaleDateString([], { month: 'long' })}</i></article>
           <article className="summary-tile summary-green"><span>AVG. PER LOGGED DAY</span><strong>{analysisTrackedCounts.length ? (analysisMonthLogs.length / analysisTrackedCounts.length).toFixed(1) : '0'}</strong><i>cigarettes per logged day</i></article>
           <article className="summary-tile summary-yellow"><span>ESTIMATED SPEND</span><strong className="money-stat">{formatMMK(analysisMonthLogs.length * costPerCigarette)}</strong><i>in {analysisMonth.toLocaleDateString([], { month: 'long' })}</i></article>
-          <article className="summary-tile summary-red"><span>OVER DAILY GOAL</span><strong>{analysisOverDays}</strong><i>{analysisTargetDays} days hit your goal</i></article>
+          <article className="summary-tile summary-over"><span>OVER TARGET</span><strong>{analysisOverDays}</strong><i>{analysisTargetDays} days at target</i></article>
         </div>
         <article className="card monthly-analysis-card">
           <div className="calendar-toolbar">
@@ -591,13 +591,13 @@ function App() {
           <p className="chart-description">Average cigarettes on days you logged at least one. Days without entries are not counted as zero.</p>
           {analysisWeeks.length ? <div className="monthly-weeks" aria-label={`Weekly average cigarettes per logged day in ${analysisMonth.toLocaleDateString([], { month: 'long', year: 'numeric' })}. Daily goal is ${dailyGoal}.`}>
             {analysisWeeks.map((week) => {
-              const weekStatus = week.average > dailyGoal ? 'over' : week.average === dailyGoal && week.trackedDays ? 'target' : 'under'
+              const weekStatus = week.average > dailyGoal ? 'over' : week.average === dailyGoal && week.trackedDays ? 'at' : 'below'
               const fillPercent = week.trackedDays ? Math.min((week.average / dailyGoal) * 100, 100) : 0
               return <div className={`monthly-week-column ${week.trackedDays ? weekStatus : 'no-logs'}`} key={week.week}>
                 <div className="monthly-week-heading"><strong>WEEK {week.week}</strong><span>{week.startDay}–{week.endDay}</span></div>
                 <div className="monthly-week-result"><strong>{week.trackedDays ? week.average.toFixed(1) : '—'}</strong><span>{week.trackedDays ? 'AVG / LOGGED DAY' : 'NO LOGS'}</span></div>
                 <div className="monthly-week-meter"><i style={{ width: `${fillPercent}%` }} /></div>
-                <div className="monthly-week-footer"><span>{week.trackedDays} {week.trackedDays === 1 ? 'day' : 'days'} with logs</span><span>{week.trackedDays ? week.average > dailyGoal ? `${(week.average - dailyGoal).toFixed(1)} over` : week.average === dailyGoal ? 'On goal' : `${(dailyGoal - week.average).toFixed(1)} under` : '—'}</span></div>
+                <div className="monthly-week-footer"><span>{week.trackedDays} {week.trackedDays === 1 ? 'day' : 'days'} with logs</span><span>{week.trackedDays ? week.average > dailyGoal ? `Over target by ${(week.average - dailyGoal).toFixed(1)}` : week.average === dailyGoal ? 'At target' : `Below target by ${(dailyGoal - week.average).toFixed(1)}` : '—'}</span></div>
               </div>
             })}
           </div> : <div className="calendar-empty">No days in this month yet.</div>}
@@ -608,11 +608,11 @@ function App() {
           <p className="chart-description">Cigarettes logged each day compared with your personal target.</p>
           <div className="weekly-chart" role="img" aria-label={`Bar chart of cigarettes logged over the last seven days. Daily goal is ${dailyGoal}.`}>
             {chartDays.map((day) => <div className="chart-column" key={day.key}>
-              <div className="chart-bar-area" style={{ '--target-height': `${(dailyGoal / chartMax) * 100}%` } as React.CSSProperties}><div className={`chart-bar ${day.count > dailyGoal ? 'over' : day.count === dailyGoal ? 'target' : ''}`} style={{ height: `${day.count ? Math.max((day.count / chartMax) * 100, 3) : 0}%` }}><span>{day.count || ''}</span></div></div>
+              <div className="chart-bar-area" style={{ '--target-height': `${(dailyGoal / chartMax) * 100}%` } as React.CSSProperties}><div className={`chart-bar ${day.count === 0 ? 'no-logs' : day.count > dailyGoal ? 'over' : day.count === dailyGoal ? 'at' : 'below'}`} style={{ height: `${day.count ? Math.max((day.count / chartMax) * 100, 3) : 0}%` }}><span>{day.count || ''}</span></div></div>
               <span className="chart-day-label">{day.date.toLocaleDateString([], { weekday: 'short' })}</span><span className="chart-date-label">{day.date.getDate()}</span>
             </div>)}
           </div>
-          <div className="chart-legend"><span><i className="legend-under" /> At or under goal</span><span><i className="legend-over" /> Over goal</span><span><i className="legend-line" /> Daily goal</span></div>
+          <div className="chart-legend"><span><i className="legend-below" /> Below target</span><span><i className="legend-at" /> At target</span><span><i className="legend-over" /> Over target</span><span><i className="legend-no-logs" /> No logs</span><span><i className="legend-line" /> Daily target</span></div>
         </article>
         <div className="insight-note"><span>✳</span><p><strong>Your progress isn’t a straight line.</strong> These numbers are here to help you notice patterns—not to judge your day.</p></div>
       </section>}
